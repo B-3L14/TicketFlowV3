@@ -1,3 +1,4 @@
+// Ficheiro: Sales/Infrastructure/Repositories/OrderRepository.cs
 using Microsoft.EntityFrameworkCore;
 using TicketFlow.Contexts.Sales.Domain.Entities;
 using TicketFlow.Contexts.Sales.Domain.Ports;
@@ -23,14 +24,14 @@ namespace TicketFlow.Contexts.Sales.Infrastructure.Repositories
         public async Task<Order?> ObterPorIdAsync(Guid id)
         {
             return await _context.Pedidos
-                .Include(p => p.Itens)     // Traz os itens junto
-                .Include(p => p.Ingressos) // Traz os ingressos gerados
+                .Include(p => p.Itens)
+                .Include(p => p.Ingressos)
                 .FirstOrDefaultAsync(p => p.Id == id);
         }
 
         public async Task AtualizarAsync(Order pedido)
         {
-            _context.Pedidos.Update(pedido);
+            
             await _context.SaveChangesAsync();
         }
 

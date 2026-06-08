@@ -4,16 +4,15 @@ using TicketFlow.Contexts.Sales.Domain.Ports;
 
 namespace TicketFlow.Contexts.Sales.Application.UseCases
 {
-    /// <summary>
-    /// Adiciona um item (evento + quantidade) ao pedido (Must Have).
-    /// </summary>
     public class AddItemUseCase
     {
         private readonly IOrderRepository _orderRepository;
+        private readonly IEventCatalogService _eventCatalogService;
 
-        public AddItemUseCase(IOrderRepository orderRepository)
+        public AddItemUseCase(IOrderRepository orderRepository, IEventCatalogService eventCatalogService)
         {
             _orderRepository = orderRepository;
+            _eventCatalogService = eventCatalogService;
         }
 
         public async Task<Order> ExecutarAsync(Guid pedidoId, AddItemRequest request)
@@ -21,7 +20,10 @@ namespace TicketFlow.Contexts.Sales.Application.UseCases
             var pedido = await _orderRepository.ObterPorIdAsync(pedidoId)
                 ?? throw new KeyNotFoundException("Pedido não encontrado.");
 
-            pedido.AdicionarItem(request.EventoId, request.Quantidade, request.PrecoUnitario);
+            // 🚀 A MÁGICA ACONTECE AQUI: Busca o preço real diretamente do catálogo!
+            decimal precoReal = await _eventCatalogService.GetPriceAsync(request.EventoId);
+
+            pedido.AdicionarItem(request.EventoId, request.Quantidade, precoReal);
 
             await _orderRepository.AtualizarAsync(pedido);
             return pedido;

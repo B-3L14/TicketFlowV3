@@ -28,7 +28,6 @@ namespace TicketFlow.Contexts.Sales.Infrastructure.Repositories
 
         public async Task AtualizarAsync(Ingresso ingresso)
         {
-            _context.Ingressos.Update(ingresso);
             await _context.SaveChangesAsync();
         }
     }

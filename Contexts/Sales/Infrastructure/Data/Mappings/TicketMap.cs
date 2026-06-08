@@ -12,7 +12,9 @@ namespace TicketFlow.Contexts.Sales.Infrastructure.Data.Mappings
             builder.ToTable("Tickets");
             builder.HasKey(i => i.Id);
 
-            // Mapeando o HashIngresso (Value Object) para uma string no banco
+            // 4️⃣ ESSENCIAL: Evita o mesmo erro quando os ingressos forem gerados após o pagamento.
+            builder.Property(i => i.Id).ValueGeneratedNever();
+
             builder.Property(i => i.Hash)
                 .HasConversion(
                     vo => vo.Valor,

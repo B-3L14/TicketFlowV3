@@ -12,21 +12,31 @@ namespace TicketFlow.Contexts.Sales.Infrastructure.Data.Mappings
             builder.ToTable("Orders");
             builder.HasKey(o => o.Id);
 
-            // Mapeia as coleções encapsuladas no domínio
+            // 1️⃣ ESSENCIAL: Diz ao EF que nós geramos o ID no C#, não no banco de dados.
+            builder.Property(o => o.Id).ValueGeneratedNever();
+
             var navigationItens = builder.Metadata.FindNavigation(nameof(Order.Itens));
-            navigationItens?.SetPropertyAccessMode(PropertyAccessMode.Field); // Diz ao EF para usar o _itens backing field
+            navigationItens?.SetPropertyAccessMode(PropertyAccessMode.Field);
 
             var navigationIngressos = builder.Metadata.FindNavigation(nameof(Order.Ingressos));
             navigationIngressos?.SetPropertyAccessMode(PropertyAccessMode.Field);
 
-            // Configuração da entidade dependente OrderItem
+            // 2️⃣ Mapeamento da relação Pedido -> Ingressos (para criar a Foreign Key)
+            builder.HasMany(o => o.Ingressos)
+                   .WithOne()
+                   .HasForeignKey("OrderId") // Cria uma coluna invisível 'OrderId' na tabela Tickets
+                   .OnDelete(DeleteBehavior.Cascade);
+
             builder.OwnsMany(o => o.Itens, item =>
             {
                 item.ToTable("OrderItems");
                 item.HasKey(i => i.Id);
+
+                // 3️⃣ ESSENCIAL: Evita o erro de Concorrência ao adicionar novos itens!
+                item.Property(i => i.Id).ValueGeneratedNever();
+
                 item.WithOwner().HasForeignKey("OrderId");
 
-                // Mapeando os Value Objects do item
                 item.Property(i => i.PrecoUnitario)
                     .HasConversion(
                         vo => vo.Valor,

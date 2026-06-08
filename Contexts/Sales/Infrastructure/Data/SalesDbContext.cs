@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TicketFlow.Contexts.Sales.Domain.Entities;
-using TicketFlow.Domain.Entities; 
+using TicketFlow.Domain.Entities;
 
 namespace TicketFlow.Contexts.Sales.Infrastructure.Data
 {

@@ -8,13 +8,16 @@ namespace TicketFlow.Contexts.Sales.Application.UseCases
     {
         private readonly IPaymentGateway _pagamentoGateway;
         private readonly IOrderRepository _pedidoRepository;
+        private readonly IEventCatalogService _eventCatalogService;
 
         public CheckoutUseCase(
             IPaymentGateway pagamentoGateway,
-            IOrderRepository pedidoRepository)
+            IOrderRepository pedidoRepository,
+            IEventCatalogService eventCatalogService)
         {
             _pagamentoGateway = pagamentoGateway;
             _pedidoRepository = pedidoRepository;
+            _eventCatalogService = eventCatalogService;
         }
 
         public async Task<Order> ExecutarAsync(CheckoutRequest request)
@@ -23,19 +26,17 @@ namespace TicketFlow.Contexts.Sales.Application.UseCases
 
             foreach (var item in request.Itens)
             {
-                pedido.AdicionarItem(item.EventoId, item.Quantidade, item.PrecoUnitario);
+                // Busca o preço real
+                decimal precoReal = await _eventCatalogService.GetPriceAsync(item.EventoId);
+                pedido.AdicionarItem(item.EventoId, item.Quantidade, precoReal);
             }
 
             bool pagamentoAprovado = await _pagamentoGateway.ProcessarPagamentoAsync(pedido, request.TokenPagamento);
 
             if (pagamentoAprovado)
-            {
                 pedido.MarcarComoPago();
-            }
             else
-            {
                 pedido.Cancelar();
-            }
 
             await _pedidoRepository.SalvarAsync(pedido);
 

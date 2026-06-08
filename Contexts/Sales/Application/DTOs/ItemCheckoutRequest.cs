@@ -2,7 +2,6 @@
 {
     public record ItemCheckoutRequest(
         Guid EventoId,
-        int Quantidade,
-        decimal PrecoUnitario
+        int Quantidade
     );
 }
