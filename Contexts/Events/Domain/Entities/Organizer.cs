@@ -20,6 +20,7 @@ public class Organizer
 
     private Organizer() { }
 
+    // 1. Construtor original (Gera um novo ID automático)
     internal Organizer(string name, Email email, string phone, string? document)
     {
         if (string.IsNullOrWhiteSpace(name))
@@ -36,8 +37,31 @@ public class Organizer
         IsActive = true;
     }
 
+    // 2. Novo construtor (Recebe o ID do evento de sincronização)
+    internal Organizer(Guid id, string name, Email email, string phone, string? document)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            throw new ArgumentException("Nome do organizador é obrigatório.", nameof(name));
+        if (string.IsNullOrWhiteSpace(phone))
+            throw new ArgumentException("Telefone do organizador é obrigatório.", nameof(phone));
+
+        Id = id;
+        CreatedAt = DateTime.UtcNow;
+        Name = name.Trim();
+        Email = email;
+        Phone = phone.Trim();
+        Document = document?.Trim();
+        IsActive = true;
+    }
+
+    // Factory Method original (usado pelo CreateOrganizerUseCase)
     public static Organizer Create(string name, Email email, string phone, string? document = null)
         => new Organizer(name, email, phone, document);
+
+    // Factory Method novo (usado pelo UserRegisteredHandler)
+    public static Organizer CreateWithId(Guid id, string name, Email email, string phone, string? document = null)
+        => new Organizer(id, name, email, phone, document);
+
 
     public void Update(string name, Email email, string phone, string? document, string? logoUrl, string? description)
     {

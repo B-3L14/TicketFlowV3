@@ -3,10 +3,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using TicketFlow.Contexts.Auth.Application.UseCases;
+using TicketFlow.Contexts.Auth.Domain.Events;
 using TicketFlow.Contexts.Auth.Domain.Ports;
 using TicketFlow.Contexts.Auth.Infrastructure.Adapters;
 using TicketFlow.Contexts.Auth.Infrastructure.Data;
 using TicketFlow.Contexts.Auth.Infrastructure.Repositories;
+using TicketFlow.Contexts.Events.Application.EventHandlers;
+
 
 // Adicionados usings do contexto de Events
 using TicketFlow.Contexts.Events.Application.UseCases;
@@ -19,6 +22,9 @@ using TicketFlow.Contexts.Sales.Domain.Ports;
 using TicketFlow.Contexts.Sales.Infrastructure.Adapters;
 using TicketFlow.Contexts.Sales.Infrastructure.Data;
 using TicketFlow.Contexts.Sales.Infrastructure.Repositories;
+using TicketFlow.Shared.Application;
+using TicketFlow.Shared.Domain;
+using TicketFlow.Shared.Infrastructure;
 
 namespace TicketFlow
 {
@@ -115,6 +121,13 @@ namespace TicketFlow
             builder.Services.AddScoped<UpdateBatchUseCase>();
             builder.Services.AddScoped<GetBatchesByEventUseCase>();
             builder.Services.AddScoped<DeleteBatchUseCase>();
+
+            //Shared
+            // Registro do Dispatcher Central de Eventos
+            builder.Services.AddScoped<IDomainEventDispatcher, DependencyInjectionEventDispatcher>();
+
+            // Registro Automático ou Manual dos Manipuladores de Eventos (Handlers)
+            builder.Services.AddScoped<IEventHandler<UserRegisteredEvent>, UserRegisteredHandler>();
 
 
             // ── JWT ───────────────────────────────────────────────────────────────

@@ -162,7 +162,7 @@ namespace TicketFlow.Contexts.Sales.Presentation.Controllers
                     Ingressos = p.Ingressos.Select(i => new
                     {
                         i.Id,
-                        i.Hash,
+                        Hash = i.Hash.Valor,
                         i.EventoId,
                         Status = i.Status.ToString()
                     })
